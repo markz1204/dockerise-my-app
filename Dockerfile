@@ -1,19 +1,22 @@
 FROM node:latest AS builder
 # Above, we set the base image for this first stage as a light weigh node
 
-WORKDIR './app'
+WORKDIR '/app'
 # Above we set the build environment as a folder called /app in the docker container to prevent clashes
+
+# add `/app/node_modules/.bin` to $PATH
+ENV PATH /app/node_modules/.bin:$PATH
 
 COPY package*.json ./
 # To prevent repeated npm installs anytime we make any change, we'd copy over the package.json and install things first
 
-RUN npm install
+RUN yarn --frozen-lockfile
 # Install dependencies
 
-COPY ./ ./
+COPY . ./
 # Copy the rest of the project over to the /app folder in the container
 
-RUN npm run build
+RUN yarn run build
 # Build the production version of our app in the container
 
 FROM nginx
